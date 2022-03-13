@@ -1,0 +1,28 @@
+first commit:
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch master
+#
+# Initial commit
+#
+# Changes to be committed:
+#	new file:   .vscode/extensions.json
+#	new file:   .vscode/settings.json
+#	new file:   controllers/c_order.js
+#	new file:   controllers/c_product.js
+#	new file:   controllers/c_user.js
+#	new file:   model/mongodb.js
+#	new file:   model/mongoos.js
+#	new file:   package-lock.json
+#	new file:   package.json
+#	new file:   routes/r_order.js
+#	new file:   routes/r_product.js
+#	new file:   routes/r_user.js
+#	new file:   server.js
+#	new file:   thunder-collection_TestApi.json
+#	new file:   thunder-collection_TestApi_postman.json
+#	new file:   utils/statics.js
+#
+# Untracked files:
+#   node_modules/
