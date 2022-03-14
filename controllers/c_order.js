@@ -1,77 +1,103 @@
 // require('../model/mongoos');
 const match = require('nodemon/lib/monitor/match');
 const { orderModel: Model } = require('../model/mongoos')
+const { isNumeric, checkData, errorMessage } = require('../utils/myFunc')
 
 // getOrder
-exports.getOrder = async (req, res) => {
-    const { id } = req.params;
-    const data = await Model.aggregate([
-        {
-            $lookup: {
-                from: 'user',
-                localField: 'userId',
-                foreignField: '_id',
-                as: 'user'
-            }
-        },
-        {
-            $lookup: {
-                from: 'product',
-                localField: 'productId',
-                foreignField: '_id',
-                as: 'product'
-            }
-        }, { $match: { _id: parseInt(id) } },
-        { $project: { _id: 1, __v: 0, 'user.__v': 0, 'product.__v': 0 } }
-    ]).exec();
+exports.getOrder = async (id, callback) => {
+    try {
+        // data analyze
+        if (!isNumeric(id)) {
+            errorMessage(callback, 403)
+            return;
+        }
 
-    res.status(200).json(data);
+        // query
+        const data = await Model.aggregate([
+            {
+                $lookup: {
+                    from: 'user',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'product',
+                    localField: 'productId',
+                    foreignField: '_id',
+                    as: 'product'
+                }
+            }, { $match: { _id: parseInt(id) } },
+            { $project: { _id: 1, __v: 0, 'user.__v': 0, 'product.__v': 0 } }
+        ]).exec();
+        checkData(callback, data)
+    } catch (error) {
+        errorMessage(callback, 500)
+    }
 }
 
 // getUserOrders
-exports.getUserOrders = async (req, res) => {
-    const { userId } = req.params;
-    const { status } = req.body;
-    const data = await Model.aggregate([
-        {
-            $lookup: {
-                from: 'user',
-                localField: 'userId',
-                foreignField: '_id',
-                as: 'user'
-            }
-
-
-        }, {
-            $lookup: {
-                from: 'product',
-                localField: 'productId',
-                foreignField: '_id',
-                as: 'product'
-            }
-
-
-        }, { $match: { 'user._id': parseInt(userId), 'status': parseInt(status) } },
-        { $project: { _id: 1, __v: 0, 'user.__v': 0, 'product.__v': 0 } }
-    ]).exec();
-    console.log(userId);
-    res.status(200).json(data);
+exports.getUserOrders = async (userId, status, callback) => {
+    try {
+        // data analyze
+        if (!isNumeric(userId) && !isNumeric(status)) {
+            errorMessage(callback, 403)
+            return;
+        }
+        const data = await Model.aggregate([
+            {
+                $lookup: {
+                    from: 'user',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            }, {
+                $lookup: {
+                    from: 'product',
+                    localField: 'productId',
+                    foreignField: '_id',
+                    as: 'product'
+                }
+            }, { $match: { 'user._id': parseInt(userId), 'status': parseInt(status) } },
+            { $project: { _id: 1, __v: 0, 'user.__v': 0, 'product.__v': 0 } }
+        ]).exec();
+        console.log(userId);
+        checkData(callback, data)
+    } catch (error) {
+        errorMessage(callback, 500)
+    }
 }
 
 // addOrders
-exports.addOrders = async (req, res) => {
-    const count = await Model.findOne().select('_id').sort({ _id: -1 })
-    console.log('count', count)
-    let n = 0;
-    if (!count) {
-        n = 0;
-    } else {
-        n = count._id;
-    }
-    req.body._id = (n + 1);
-    const data = await Model.create(req.body);
+exports.addOrders = async (body,callback) => {
+    try {
+        // data analyze
+        var obj = new Object();
+        const { productId, count, userId } = body;
+        obj.productId = productId;
+        obj.count = count;
+        obj.userId = userId;
 
-    res.status(200).json(data);
+        // query for Get Number of order
+        const number = await Model.findOne().select('_id').sort({ _id: -1 })
+        console.log('count', count)
+        let n = 0;
+        if (!number) {
+            n = 0;
+        } else {
+            n = number._id;
+        }
+        obj._id = (n + 1);
+
+        // query
+        const data = await Model.create(obj);
+        callback(201, data);
+    } catch (error) {
+        errorMessage(callback, 500)
+    }
 }
 
 

@@ -4,16 +4,22 @@ const controllers = require('../controllers/c_user');
 const Router = express.Router();
 
 Router.get('/getUser/:id', (req,res)=>{
-    controllers.getUser(req,res);
+    const {id} = req.params;
+    controllers.getUser(id,(status,data)=>{
+        res.status(status).json(data);
+    });
 })
 
 Router.get('/getUsers', (req,res)=>{
-    controllers.getUsers(req,res);
+    controllers.getUsers(req.body,(status,data)=>{
+        res.status(status).json(data);
+    });
 })
 
-
 Router.post('/addUser', (req,res)=>{
-    controllers.addUser(req,res);
+    controllers.addUser(req.body,(status,data)=>{
+        res.status(status).json(data);
+    });
 })
 
 module.exports = Router;
