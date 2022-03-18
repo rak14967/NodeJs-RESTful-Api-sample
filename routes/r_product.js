@@ -12,8 +12,13 @@ Router.get('/getProduct/:id', (req,res)=>{
 
 // getProducts
 Router.get('/getProducts', (req,res)=>{
-    controllers.getProducts(req.body,(status,data)=>{
-        res.status(status).json(data);
+    controllers.getProducts(req.body,(status,data,cash)=>{
+        if(cash){
+            res.status(status).send(data);
+        }else{
+            res.status(status).json(data);
+        }
+        
     });
 })
 

@@ -32,11 +32,34 @@ const errorMessage = (callback,status)=>{
     callback(status, getMessage(status));
 }
 
+// redis
+var client;
+const redis = require('redis');
+(async () => {
+    client = redis.createClient();
+    client.on('error', (err) => console.log('Redis Client Error', err));
+    await client.connect();
+    
+    
+})();
 
+const redisGet = async (query)=>{
+    const value = await client.get(query);
+    return value;
+}
+
+const redisSet = async (query,data)=>{
+    await client.set(query, JSON.stringify(data));
+    client.expire(query, 10);
+}
+
+// exports
 module.exports = {
     isNumeric,
     checkData,
-    errorMessage
+    errorMessage,
+    redisGet,
+    redisSet
 };
 
 
